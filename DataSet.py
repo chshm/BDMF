@@ -12,10 +12,10 @@ class DataSet(object):
         self.test_neg_List={}
 
     def getData(self, fileName):
-        if fileName == 'ml-1m':
+        if fileName == 'AToy':
             print("Loading ml-1m data set...")
             data = []
-            filePath = './Data/ml-1m/ratings.dat'
+            filePath = './Data/AToys/filter_AToys.csv'
             # filePath = '../input/u.data'
             u = 0
             i = 0
@@ -23,7 +23,7 @@ class DataSet(object):
             with open(filePath, 'r') as f:
                 for line in f:
                     if line:
-                        lines = line[:-1].split("::")
+                        lines = line[:-1].split(",")
                         user = int(lines[0])
                         movie = int(lines[1])
                         score = float(lines[2])
@@ -88,6 +88,8 @@ class DataSet(object):
             rate.append(i[2])
             for t in range(negNum):
                 j = np.random.randint(self.shape[1])
+                # 随机抽样的样本本组不能重复
+                # 随机抽样的样本不能在测试集中出现
                 while (i[0], j) in self.trainDict and j in self.test_neg_List[i[0]]:
                     j = np.random.randint(self.shape[1])
                 user.append(i[0])
@@ -124,5 +126,5 @@ class DataSet(object):
 # if __name__ == '__main__':
 #     dataSet = DataSet("ml-1m")
 #     dataSet.getTestNeg(dataSet.test, 5)
-#     dataSet.getInstances(dataSet.train,4)
+#     dataSet.getInstances(dataSet.train, 4)
 
