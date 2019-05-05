@@ -9,14 +9,15 @@ import os
 import heapq
 import math
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 def main():
     parser = argparse.ArgumentParser(description="Options")
 
-    parser.add_argument('-dataName', action='store', dest='dataName', default='ml-1m')
+    parser.add_argument('-dataName', action='store', dest='dataName', default='Amusic')
     parser.add_argument('-negNum', action='store', dest='negNum', default=7, type=int)
-    parser.add_argument('-userLayer', action='store', dest='userLayer', default=[512, 256, 64])
-    parser.add_argument('-itemLayer', action='store', dest='itemLayer', default=[512, 256, 64])
+    parser.add_argument('-userLayer', action='store', dest='userLayer', default=[512, 256])
+    parser.add_argument('-itemLayer', action='store', dest='itemLayer', default=[512, 256])
     parser.add_argument('-reg', action='store', dest='reg', default=0)
     parser.add_argument('-lr', action='store', dest='lr', default=0.0001)
     parser.add_argument('-maxEpochs', action='store', dest='maxEpochs', default=50, type=int)
@@ -154,9 +155,10 @@ class Model:
         hr_list = []
         ndcg_list = []
         print("Start Training!")
+        train_data = self.dataSet.getInstances(self.train, self.negNum)
         for epoch in range(self.maxEpochs):
             print("=" * 20 + "Epoch ", epoch, "=" * 20)
-            self.run_epoch(self.sess)
+            self.run_epoch(self.sess, train_data)
             print('=' * 50)
             print("Start Evaluation!")
             hr, NDCG = self.evaluate(self.sess, self.topK)
@@ -185,8 +187,9 @@ class Model:
         #         f.write('\n')
         # print("Training complete!")
 
-    def run_epoch(self, sess, verbose=300):
-        train_u, train_i, train_r = self.dataSet.getInstances(self.train, self.negNum)
+    def run_epoch(self, sess, train_data, verbose=300):
+        # train_u, train_i, train_r = self.dataSet.getInstances(self.train, self.negNum)
+        train_u, train_i, train_r = train_data[0], train_data[1], train_data[2]
         train_len = len(train_u)
         shuffled_idx = np.random.permutation(np.arange(train_len))
         train_u = train_u[shuffled_idx]
